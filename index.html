@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUTRI-FIT-ON - Calculadora Fitness</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh; padding: 20px;
+            transition: background 0.3s ease, color 0.3s ease;
+        }
+
+        /* MODO OSCURO */
+        body.dark {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e5e7eb;
+        }
+        body.dark .top-bar {
+            background: rgba(26, 26, 46, 0.98);
+        }
+        body.dark .container {
+            background: #1f2937;
+            color: #e5e7eb;
+        }
+        /* IMPORTANTE: Estas tarjetas SIEMPRE blancas con texto oscuro */
+        body.dark .result-item,
+        body.dark .goal-item,
+        body.dark .tip-item,
+        body.dark .macro-item {
+            background: rgba(255, 255, 255, 0.97) !important;
+            color: #333 !important;
+        }
+        body.dark .tip-text {
+            color: #333 !important;
+        }
+        body.dark .goal-name {
+            color: #333 !important;
+        }
+        body.dark .results {
+            background: linear-gradient(135deg, #7c3aed 0%, #be185d 100%);
+        }
+        body.dark .tips-section {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        body.dark .macros-section {
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        }
+        body.dark .nav-link {
+            color: #e5e7eb;
+        }
+        body.dark .nav-link:hover {
+            background: #374151;
+        }
+        body.dark input[type=number],
+        body.dark select {
+            background: #374151;
+            color: #e5e7eb;
+            border-color: #4b5563;
+        }
+        body.dark .radio-option {
+            background: #374151;
+            border-color: #4b5563;
+        }
+        body.dark .radio-option.selected {
+            background: rgba(102, 126, 234, 0.2);
+        }
+        body.dark .modal-content {
+            background: #1f2937;
+            color: #e5e7eb;
+        }
+        body.dark .modal-input {
+            background: #374151;
+            color: #e5e7eb;
+            border-color: #4b5563;
+        }
+
+        /* Toggle tema */
+        .theme-toggle button {
+            background: transparent;
+            border: 2px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .theme-toggle button:hover {
+            background: #667eea;
+            transform: scale(1.1);
+        }
+        body.dark .theme-toggle button {
+            border-color: #a78bfa;
+        }
+        body.dark .theme-toggle button:hover {
+            background: #a78bfa;
+        }
+
+        /* Header */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.98);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 12px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .language-selector { display: flex; gap: 8px; }
+        .lang-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all .3s ease;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .lang-btn:hover { background: #f5f5f5; }
+        .lang-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .flag { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
+
+        .nav-menu { display: flex; gap: 20px; align-items: center; }
+        .nav-link {
+            text-decoration: none;
+            color: #333;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            transition: all .3s ease;
+        }
+        .nav-link:hover { background: #f5f5f5; }
+        .nav-link.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .auth-section { display: flex; gap: 10px; align-items: center; }
+        .auth-section.logged-in .login-form { display: none; }
+        .auth-section.logged-in .user-info { display: flex; }
+        .user-info { display: none; align-items: center; gap: 12px; }
+        .username-display { font-weight: 600; color: #667eea; font-size: 14px; }
+        .auth-input {
+            padding: 8px 14px;
+            border: 2px solid #e8e8e8;
+            border-radius: 20px;
+            font-size: 13px;
+            width: 140px;
+            transition: all .3s ease;
+        }
+        .auth-input:focus { outline: none; border-color: #667eea; }
+        .btn-auth {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+        .btn-login {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,.3); }
+        .btn-logout {
+            background: #f5576c;
+            color: white;
+        }
+        .btn-logout:hover { transform: translateY(-2px); }
+        .btn-register {
+            background: transparent;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        .btn-register:hover { background: #667eea; color: white; }
+
+        .page-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 30px;
+            box-shadow: 0 25px 80px rgba(0,0,0,.25);
+            max-width: 650px;
+            width: 100%;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+        }
+
+        /* LOGO MEJORADO - Más grande y sin fondo */
+        .logo-area {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 12px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-area img {
+            max-width: 100%;
+            max-height: 180px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 24px rgba(0,0,0,.15));
+        }
+
+        h1 { color: #667eea; text-align: center; margin-bottom: 8px; font-size: 30px; font-weight: 700; }
+        .subtitle { text-align: center; color: #888; margin-bottom: 30px; font-size: 15px; font-weight: 500; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; color: #333; font-weight: 600; margin-bottom: 10px; font-size: 14px; }
+        body.dark label { color: #e5e7eb; }
+
+        input[type=number], select {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2.5px solid #e8e8e8;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all .3s ease;
+            background: #fafafa;
+            font-family: inherit;
+        }
+        input[type=number]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 4px rgba(102,126,234,.1);
+        }
+
+        /* Campos medidas corporales */
+        .measurements-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .measurements-grid .form-group {
+            margin-bottom: 0;
+        }
+
+        .radio-group { display: flex; gap: 15px; margin-top: 10px; }
+        .radio-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            border: 2.5px solid #e8e8e8;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all .3s ease;
+            background: #fafafa;
+        }
+        .radio-option:hover { border-color: #d0d0d0; background: white; }
+        .radio-option.selected {
+            border-color: #667eea;
+            background: linear-gradient(135deg, rgba(102,126,234,.1) 0%, rgba(118,75,162,.1) 100%);
+        }
+        input[type=radio] { width: 18px; height: 18px; cursor: pointer; margin-right: 8px; accent-color: #667eea; }
+        .radio-option label { margin: 0; cursor: pointer; font-weight: 600; }
+
+        button[type=submit] {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all .3s ease;
+            box-shadow: 0 6px 20px rgba(102,126,234,.3);
+        }
+        button[type=submit]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(102,126,234,.4);
+        }
+
+        .results {
+            margin-top: 30px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border-radius: 20px;
+            display: none;
+            box-shadow: 0 10px 40px rgba(245,87,108,.3);
+        }
+        .results.show { display: block; animation: slideIn .6s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+
+        .result-item {
+            background: rgba(255,255,255,.97);
+            padding: 18px 20px;
+            border-radius: 14px;
+            margin-bottom: 14px;
+        }
+        .result-label { font-size: 13px; color: #888; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+        .result-value { font-size: 28px; font-weight: 800; color: #667eea; }
+
+        /* IMC con badge */
+        .bmi-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .bmi-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .bmi-underweight { background: #60a5fa; color: white; }
+        .bmi-normal { background: #34d399; color: white; }
+        .bmi-overweight { background: #fbbf24; color: white; }
+        .bmi-obese { background: #f87171; color: white; }
+
+        /* Botón exportar */
+        .export-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all .3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16,185,129,.4);
+        }
+
+        .goals { margin-top: 20px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,.3); }
+        .goals-title { color: white; font-weight: 700; margin-bottom: 15px; font-size: 17px; }
+        .goal-item {
+            background: rgba(255,255,255,.97);
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .goal-name { font-weight: 600; color: #333; font-size: 14px; }
+        .goal-calories { font-weight: 800; color: #f5576c; font-size: 17px; }
+
+        /* MACROS SECTION */
+        .macros-section {
+            margin-top: 35px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+            border-radius: 20px;
+            display: none;
+            box-shadow: 0 10px 40px rgba(245,158,11,.3);
+        }
+        .macros-section.show { display: block; animation: slideIn .6s ease .1s both; }
+        .macros-title { color: white; font-weight: 700; font-size: 19px; margin-bottom: 18px; text-align: center; }
+        .macros-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .macro-item {
+            background: rgba(255,255,255,.97);
+            padding: 16px;
+            border-radius: 14px;
+            text-align: center;
+        }
+        .macro-icon { font-size: 28px; margin-bottom: 8px; }
+        .macro-label { font-size: 12px; color: #888; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; }
+        .macro-value { font-size: 24px; font-weight: 800; color: #ea580c; }
+        .macro-percentage { font-size: 13px; color: #666; font-weight: 600; margin-top: 4px; }
+        .macros-chart-container {
+            background: rgba(255,255,255,.97);
+            padding: 20px;
+            border-radius: 14px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .tips-section {
+            margin-top: 35px;
+            padding: 30px;
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            border-radius: 20px;
+            display: none;
+            box-shadow: 0 10px 40px rgba(67,233,123,.3);
+        }
+        .tips-section.show { display: block; animation: slideIn .6s ease .2s both; }
+        .tips-title { color: white; font-weight: 700; font-size: 19px; margin-bottom: 18px; text-align: center; }
+        .tip-item {
+            background: rgba(255,255,255,.97);
+            padding: 16px 18px;
+            border-radius: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 14px;
+        }
+        .tip-icon { font-size: 26px; flex-shrink: 0; }
+        .tip-text { color: #333; font-size: 14px; line-height: 1.6; font-weight: 500; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,.3);
+        }
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e8e8e8;
+            border-radius: 10px;
+            font-size: 15px;
+            margin-bottom: 15px;
+            font-family: inherit;
+        }
+        .modal-input:focus { outline: none; border-color: #667eea; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s ease;
+        }
+        .modal-btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-btn-secondary { background: #e8e8e8; color: #666; }
+
+        @media (max-width: 768px) {
+            .top-bar { flex-wrap: wrap; gap: 10px; padding: 10px 15px; }
+            .nav-menu { order: 3; width: 100%; justify-content: center; margin-top: 10px; }
+            .auth-section { flex-wrap: wrap; }
+            .auth-input { width: 120px; }
+            .page-container { padding-top: 140px; }
+            .macros-grid { grid-template-columns: 1fr; }
+            .measurements-grid { grid-template-columns: 1fr; }
+            .logo-area { min-height: 160px; }
+            .logo-area img { max-height: 150px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="language-selector">
+            <button class="lang-btn active" onclick="changeLanguage(event,'es')">
+                <img src="https://flagcdn.com/es.svg" alt="ES" class="flag">
+                <span>ES</span>
+            </button>
+            <button class="lang-btn" onclick="changeLanguage(event,'en')">
+                <img src="https://flagcdn.com/gb.svg" alt="EN" class="flag">
+                <span>EN</span>
+            </button>
+            <button class="lang-btn" onclick="changeLanguage(event,'de')">
+                <img src="https://flagcdn.com/de.svg" alt="DE" class="flag">
+                <span>DE</span>
+            </button>
+        </div>
+
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link active" data-translate="navCalculator">Calculadora</a>
+            <a href="progreso.html" class="nav-link" data-translate="navProgress">Mi Progreso</a>
+        </nav>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+            <div class="theme-toggle">
+                <button id="themeToggle" onclick="toggleTheme()">🌙</button>
+            </div>
+            <div class="auth-section" id="authSection">
+                <div class="login-form">
+                    <input type="text" id="loginUsername" class="auth-input" placeholder="Usuario" data-translate-placeholder="username">
+                    <input type="password" id="loginPassword" class="auth-input" placeholder="Contraseña" data-translate-placeholder="password">
+                    <button class="btn-auth btn-login" onclick="handleLogin()" data-translate="btnLogin">Entrar</button>
+                    <button class="btn-auth btn-register" onclick="showRegisterModal()" data-translate="btnRegister">Registrarse</button>
+                </div>
+                <div class="user-info">
+                    <span class="username-display" id="usernameDisplay"></span>
+                    <button class="btn-auth btn-logout" onclick="handleLogout()" data-translate="btnLogout">Salir</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <h2 class="modal-title" data-translate="registerTitle">Crear Cuenta</h2>
+            <input type="text" id="regUsername" class="modal-input" placeholder="Usuario" data-translate-placeholder="username">
+            <input type="password" id="regPassword" class="modal-input" placeholder="Contraseña" data-translate-placeholder="password">
+            <input type="password" id="regPasswordConfirm" class="modal-input" placeholder="Confirmar contraseña" data-translate-placeholder="confirmPassword">
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-secondary" onclick="closeRegisterModal()" data-translate="btnCancel">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" onclick="handleRegister()" data-translate="btnCreateAccount">Crear</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="page-container">
+        <div class="container">
+            <div class="logo-area">
+                <img src="assets/logo-nutri-fit-on.png" alt="NUTRI-FIT-ON" loading="eager">
+            </div>
+
+            <h1 data-translate="title">🏋️ Calculadora Fitness</h1>
+            <p class="subtitle" data-translate="subtitle">Calcula tus calorías diarias necesarias</p>
+
+            <form id="calorieForm">
+                <div class="form-group">
+                    <label data-translate="gender">Género</label>
+                    <div class="radio-group">
+                        <div class="radio-option selected" onclick="selectGender(this, 'male')">
+                            <input type="radio" id="male" name="gender" value="male" checked>
+                            <label for="male" data-translate="male">Hombre</label>
+                        </div>
+                        <div class="radio-option" onclick="selectGender(this, 'female')">
+                            <input type="radio" id="female" name="gender" value="female">
+                            <label for="female" data-translate="female">Mujer</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="age" data-translate="age">Edad (años)</label>
+                    <input type="number" id="age" min="15" max="100" required>
+                </div>
+                <div class="form-group">
+                    <label for="weight" data-translate="weight">Peso (kg)</label>
+                    <input type="number" id="weight" min="30" max="300" step="0.1" required>
+                </div>
+                <div class="form-group">
+                    <label for="height" data-translate="height">Altura (cm)</label>
+                    <input type="number" id="height" min="100" max="250" required>
+                </div>
+
+                <div class="form-group">
+                    <label data-translate="bodyMeasurements">📏 Medidas Corporales (opcional)</label>
+                    <div class="measurements-grid">
+                        <div class="form-group">
+                            <label for="waist" data-translate="waist">Cintura (cm)</label>
+                            <input type="number" id="waist" min="40" max="200" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="hip" data-translate="hip">Cadera (cm)</label>
+                            <input type="number" id="hip" min="50" max="200" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="chest" data-translate="chest">Pecho (cm)</label>
+                            <input type="number" id="chest" min="50" max="200" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label for="arms" data-translate="arms">Brazos (cm)</label>
+                            <input type="number" id="arms" min="15" max="60" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="activity" data-translate="activityLevel">Nivel de Actividad Física</label>
+                    <select id="activity" required>
+                        <option value="1.2" data-translate="sedentary">Sedentario (poco o ningún ejercicio)</option>
+                        <option value="1.375" data-translate="lightlyActive">Ligeramente activo (1-3 días/semana)</option>
+                        <option value="1.55" data-translate="moderatelyActive">Moderadamente activo (3-5 días/semana)</option>
+                        <option value="1.725" data-translate="veryActive">Muy activo (6-7 días/semana)</option>
+                        <option value="1.9" data-translate="extraActive">Extra activo (intenso diario)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goal" data-translate="goalLabel">Tu Objetivo</label>
+                    <select id="goal" required>
+                        <option value="loss" data-translate="goalLoss">Pérdida de peso</option>
+                        <option value="maintain" data-translate="goalMaintain">Mantenimiento</option>
+                        <option value="gain" data-translate="goalGain">Ganancia muscular</option>
+                    </select>
+                </div>
+                <button type="submit" data-translate="calculate">Calcular Calorías</button>
+            </form>
+
+            <div class="results" id="results">
+                <div class="result-item">
+                    <div class="result-label" data-translate="bmr">BMR (Metabolismo Basal)</div>
+                    <div class="result-value" id="bmr">0 kcal</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label" data-translate="tdee">TDEE (Calorías Diarias Totales)</div>
+                    <div class="result-value" id="tdee">0 kcal</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label" data-translate="bmi">IMC (Índice de Masa Corporal)</div>
+                    <div class="bmi-container">
+                        <div class="result-value" id="bmi">0</div>
+                        <span class="bmi-badge" id="bmiBadge"></span>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label" data-translate="waterIntake">💧 Agua Diaria Recomendada</div>
+                    <div class="result-value" id="waterIntake">0 L</div>
+                </div>
+                <div class="goals">
+                    <div class="goals-title" data-translate="goalsTitle">📊 Objetivos Calóricos</div>
+                    <div class="goal-item">
+                        <span class="goal-name" data-translate="weightLoss">🔻 Pérdida de peso (-500 kcal)</span>
+                        <span class="goal-calories" id="weightLoss">0</span>
+                    </div>
+                    <div class="goal-item">
+                        <span class="goal-name" data-translate="maintenance">⚖️ Mantenimiento</span>
+                        <span class="goal-calories" id="maintenance">0</span>
+                    </div>
+                    <div class="goal-item">
+                        <span class="goal-name" data-translate="weightGain">🔺 Ganancia muscular (+300 kcal)</span>
+                        <span class="goal-calories" id="weightGain">0</span>
+                    </div>
+                </div>
+
+                <button class="export-btn" onclick="exportToPDF()">
+                    <span>📄</span>
+                    <span data-translate="exportPDF">Exportar a PDF</span>
+                </button>
+            </div>
+
+            <div class="macros-section" id="macros">
+                <div class="macros-title" data-translate="macrosTitle">🍽️ Distribución de Macronutrientes</div>
+                <div class="macros-grid">
+                    <div class="macro-item">
+                        <div class="macro-icon">🥩</div>
+                        <div class="macro-label" data-translate="protein">Proteínas</div>
+                        <div class="macro-value" id="proteinValue">0g</div>
+                        <div class="macro-percentage" id="proteinPercent">0%</div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-icon">🍚</div>
+                        <div class="macro-label" data-translate="carbs">Carbohidratos</div>
+                        <div class="macro-value" id="carbsValue">0g</div>
+                        <div class="macro-percentage" id="carbsPercent">0%</div>
+                    </div>
+                    <div class="macro-item">
+                        <div class="macro-icon">🥑</div>
+                        <div class="macro-label" data-translate="fats">Grasas</div>
+                        <div class="macro-value" id="fatsValue">0g</div>
+                        <div class="macro-percentage" id="fatsPercent">0%</div>
+                    </div>
+                </div>
+                <div class="macros-chart-container">
+                    <canvas id="macrosChart"></canvas>
+                </div>
+            </div>
+
+            <div class="tips-section" id="tips">
+                <div class="tips-title" data-translate="tipsTitle">💡 Consejos para Alcanzar tu Objetivo</div>
+                <div id="tipsContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
