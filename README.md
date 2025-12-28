@@ -1,132 +1,134 @@
 # 🏋️ NUTRI-FIT-ON
 
-Calculadora fitness profesional con sistema de seguimiento, macronutrientes y análisis corporal completo.
+Professional fitness calculator with tracking system, macronutrients, and comprehensive body analysis.
 
-## 📁 Estructura del Proyecto
+## 📁 Project Structure
 
-```
-calculadora fit/
+fitness-calorie-calculator/
 │
-├── index.html          # Calculadora principal
-├── progreso.html       # Seguimiento y evolución
-├── auth.js             # Sistema de autenticación
-├── app.js              # Lógica calculadora + macros
-├── progreso.js         # Lógica seguimiento
+├── index.html # Main calculator
+├── progreso.html # Progress tracking
+├── auth.js # Authentication system
+├── app.js # Calculator logic + macros
+├── progreso.js # Progress tracking logic
 │
 └── assets/
-    └── logo-nutri-fit-on.jpg  # Logo
-```
+└── logo-nutri-fit-on.jpg # Logo
 
-## ✨ Características Principales
+## ✨ Key Features
 
-### 🧮 Calculadora de Calorías
-- **Fórmula Mifflin-St Jeor** (la más precisa científicamente)
-- Cálculo de **BMR** (metabolismo basal)
-- Cálculo de **TDEE** (gasto calórico total)
-- 5 niveles de actividad física
-- 3 objetivos: pérdida, mantenimiento, ganancia muscular
+### 🧮 Calorie Calculator
+- **Mifflin-St Jeor Formula** (most scientifically accurate)
+- **BMR** calculation (Basal Metabolic Rate)
+- **TDEE** calculation (Total Daily Energy Expenditure)
+- 5 physical activity levels
+- 3 goals: weight loss, maintenance, muscle gain
 
-### 📊 IMC Interpretado
-- Cálculo automático del Índice de Masa Corporal
-- **Badge con colores** según categoría:
-  - 🔵 Bajo peso (<18.5)
+### 📊 Interpreted BMI
+- Automatic Body Mass Index calculation
+- **Color-coded badge** by category:
+  - 🔵 Underweight (<18.5)
   - 🟢 Normal (18.5-24.9)
-  - 🟡 Sobrepeso (25-29.9)
-  - 🔴 Obesidad (30+)
+  - 🟡 Overweight (25-29.9)
+  - 🔴 Obesity (30+)
 
-### 🍽️ Macronutrientes
-- Distribución automática según objetivo:
-  - **Pérdida**: 40% Proteína, 30% Carbos, 30% Grasas
-  - **Mantenimiento**: 30% Proteína, 40% Carbos, 30% Grasas
-  - **Ganancia**: 30% Proteína, 45% Carbos, 25% Grasas
-- Valores en **gramos** y **porcentajes**
-- **Gráfico circular** interactivo (Chart.js)
+### 🍽️ Macronutrients
+- Automatic distribution based on goal:
+  - **Weight Loss**: 40% Protein, 30% Carbs, 30% Fats
+  - **Maintenance**: 30% Protein, 40% Carbs, 30% Fats
+  - **Muscle Gain**: 30% Protein, 45% Carbs, 25% Fats
+- Values in **grams** and **percentages**
+- Interactive **pie chart** (Chart.js)
 
-### 📏 Medidas Corporales
-- Campos opcionales para tracking completo:
-  - Cintura (cm)
-  - Cadera (cm)
-  - Pecho (cm)
-  - Brazos (cm)
-- **Índice Cintura-Cadera** calculado automáticamente
-- Guardado en historial personal
+### 📏 Body Measurements
+- Optional fields for complete tracking:
+  - Waist (cm)
+  - Hip (cm)
+  - Chest (cm)
+  - Arms (cm)
+- **Waist-to-Hip Ratio** calculated automatically
+- Saved in personal history
 
-### 📄 Exportación a PDF
-- Botón para descargar resultados completos
-- Incluye: BMR, TDEE, IMC, objetivos calóricos
-- Macronutrientes detallados
-- Medidas corporales (si se completaron)
+### 📄 PDF Export
+- Button to download complete results
+- Includes: BMR, TDEE, BMI, calorie goals
+- Detailed macronutrients
+- Body measurements (if completed)
 
-### 👤 Sistema de Usuarios
-- Registro e inicio de sesión
-- Datos guardados en localStorage
-- Cada usuario tiene su propio historial
+### 👤 User System
+- Registration and login
+- Data stored in localStorage
+- Each user has their own history
 
-### 📈 Seguimiento de Progreso
-- Registro histórico de peso y medidas
-- **Gráfica visual** de evolución de peso
-- Estadísticas en tiempo real
-- Historial completo con fechas
+### 📈 Progress Tracking
+- Historical record of weight and measurements
+- **Visual chart** of weight evolution
+- Real-time statistics
+- Complete history with dates
 
-### 🌐 Multiidioma
+### 🌐 Multilingual
 - 🇪🇸 Español
 - 🇬🇧 English
 - 🇩🇪 Deutsch
 
-### 🌙 Modo Oscuro/Claro
-- Toggle en esquina superior derecha
-- Preferencia guardada automáticamente
-- Diseño elegante en ambos modos
+### 🌙 Dark/Light Mode
+- Toggle in upper right corner
+- Preference saved automatically
+- Elegant design in both modes
 
 ### 📱 Responsive
-- Optimizado para móvil, tablet y PC
-- Diseño adaptable con CSS Grid/Flexbox
+- Optimized for mobile, tablet, and PC
+- Adaptive design with CSS Grid/Flexbox
 
-## 🛠️ Tecnologías
+## 🛠️ Technologies
 
-- **HTML5** - Estructura semántica
-- **CSS3** - Flexbox, Grid, Animaciones, Gradientes
-- **JavaScript Vanilla** - Sin frameworks
-- **Chart.js** - Gráficos interactivos
-- **jsPDF** - Exportación a PDF
-- **FlagCDN** - Banderas de idiomas
-- **LocalStorage** - Persistencia de datos
+- **HTML5** - Semantic structure
+- **CSS3** - Flexbox, Grid, Animations, Gradients
+- **Vanilla JavaScript** - No frameworks
+- **Chart.js** - Interactive charts
+- **jsPDF** - PDF export
+- **FlagCDN** - Language flags
+- **LocalStorage** - Data persistence
 
-## 📊 Distribución de Macronutrientes
+## 📊 Macronutrient Distribution
 
-La app calcula automáticamente los macros según tu objetivo:
+The app automatically calculates macros based on your goal:
 
-| Objetivo | Proteínas | Carbohidratos | Grasas |
-|----------|-----------|---------------|--------|
-| Pérdida de peso | 40% | 30% | 30% |
-| Mantenimiento | 30% | 40% | 30% |
-| Ganancia muscular | 30% | 45% | 25% |
+| Goal | Protein | Carbohydrates | Fats |
+|------|---------|---------------|------|
+| Weight Loss | 40% | 30% | 30% |
+| Maintenance | 30% | 40% | 30% |
+| Muscle Gain | 30% | 45% | 25% |
 
 ## 📝 Changelog
 
-### v2.0 (Diciembre 2025)
-- ✅ Calculadora de macronutrientes con gráfico
-- ✅ IMC interpretado con badge de colores
-- ✅ Exportación a PDF completa
-- ✅ Medidas corporales (cintura/cadera/pecho/brazos)
-- ✅ Índice cintura-cadera
-- ✅ Modo oscuro/claro
+### v2.0 (December 2025)
+- ✅ Macronutrient calculator with chart
+- ✅ Interpreted BMI with color-coded badge
+- ✅ Complete PDF export
+- ✅ Body measurements (waist/hip/chest/arms)
+- ✅ Waist-to-hip ratio
+- ✅ Dark/light mode
 
-### v1.0 (Diciembre 2025)
-- ✅ Calculadora de calorías (BMR/TDEE)
-- ✅ Sistema de usuarios con localStorage
-- ✅ Seguimiento de progreso con gráfica
-- ✅ 3 idiomas (ES/EN/DE)
-- ✅ Diseño responsive
+### v1.0 (December 2025)
+- ✅ Calorie calculator (BMR/TDEE)
+- ✅ User system with localStorage
+- ✅ Progress tracking with chart
+- ✅ 3 languages (ES/EN/DE)
+- ✅ Responsive design
 
-**IMPORTANTE:** La versión actual usa localStorage. Para producción profesional.
+**NOTE:** Current version uses localStorage. For professional production use, consider implementing a backend database.
 
-## 📧 Contacto
+## 📧 Contact
 
-Proyecto creado por **Sergio Iglesias** - Usuario de IT con pasión por fitness y tech.
+Project created by **Sergio Iglesias** - IT professional with passion for fitness and tech.
+
+- GitHub: [@sergioiglesiasleite](https://github.com/sergioiglesiasleite)
+- Email: sergioiglesiasleite@gmail.com
+- LinkedIn: [linkedin.com/in/sergio-iglesias](https://linkedin.com/in/sergio-iglesias)
 
 ---
 
-**Creado con mucho ❤️**
+**Built with ❤️**
 
-🌟 **Si te gusta el proyecto, dale una estrella en GitHub!**
+🌟 **If you like this project, give it a star on GitHub!**
